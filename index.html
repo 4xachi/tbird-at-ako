@@ -56,6 +56,14 @@
     </script>
 
     <style>
+        /* --- STRICTLY DISABLE SELECTION --- */
+        *, *::before, *::after {
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none;    /* Firefox */
+            -ms-user-select: none;     /* IE10+/Edge */
+            user-select: none;         /* Standard */
+        }
+
         /* --- CUSTOM CURSOR STYLES (Desktop Only) --- */
         html {
             cursor: none; /* Hidden on desktop */
@@ -87,21 +95,17 @@
         }
         
         /* --- MOBILE & TOUCH DEVICE OVERRIDES --- */
-        /* This detects touch screens or small screens to fix responsiveness */
         @media (hover: none), (pointer: coarse), (max-width: 1024px) {
-            /* 1. Restore system cursor */
             html {
                 cursor: auto !important;
             }
             
-            /* 2. Completely hide custom cursor elements */
             #cursor-dot, #cursor-ring {
                 display: none !important;
                 opacity: 0 !important;
                 visibility: hidden !important;
             }
             
-            /* 3. Ensure all interactive elements use default pointer */
             a, button, [onclick], .cursor-hover {
                 cursor: pointer !important;
             }
@@ -115,11 +119,6 @@
             background: radial-gradient(ellipse at top center, #1b1b1b 0%, #0a0a0a 70%);
         }
         
-        /* Hide default cursor on interactive elements (Desktop only via CSS logic above) */
-        a, button, [onclick] {
-            /* cursor: none; -> Handled by html selector */
-        }
-        
         h1, h2, h3, h4 {
             font-family: 'Cormorant Garamond', serif;
             color: #f5f5f5;
@@ -131,7 +130,6 @@
             text-shadow: 0 0 20px rgba(217, 178, 79, 0.3);
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -143,7 +141,6 @@
             border-radius: 4px;
         }
 
-        /* Reveal Animation */
         .reveal {
             opacity: 0;
             transform: translateY(20px);
@@ -154,7 +151,6 @@
             transform: translateY(0);
         }
 
-        /* Modal Transition */
         #reviewModal {
             transition: opacity 0.3s ease-in-out, visibility 0.3s;
         }
@@ -173,7 +169,8 @@
         }
     </style>
 </head>
-<body class="bg-dark">
+<!-- Added oncontextmenu="return false" to body as a primary blocker -->
+<body class="bg-dark" oncontextmenu="return false">
 
     <!-- CUSTOM CURSOR DIVS -->
     <div id="cursor-dot"></div>
@@ -319,8 +316,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal" style="transition-delay: 150ms;">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 
-                <!-- TEMPLATE FOR REVIEW CARD -->
-                <!-- Added: Reduced padding on mobile (p-6) to keep content inside bounds -->
+                <!-- REVIEW CARD TEMPLATE (Same structure for all) -->
                 <article class="review-card bg-mid border border-white/10 rounded-lg p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
                     <div>
                         <div class="flex items-center gap-4 mb-4">
@@ -754,7 +750,6 @@
     </footer>
 
     <!-- MODAL FOR FULL REVIEWS -->
-    <!-- Updated: w-[90%] and max-h-[85vh] to prevent cutting off on mobile -->
     <div id="reviewModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-0 sm:px-4">
         <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeReview()"></div>
@@ -764,7 +759,7 @@
             
             <!-- Header: Sticky top inside modal -->
             <div class="flex-none px-4 sm:px-6 py-4 border-b border-white/10 flex justify-between items-center bg-dark">
-                <div class="flex-1 min-w-0 mr-4"> <!-- Added min-w-0 to allow text truncation/wrapping -->
+                <div class="flex-1 min-w-0 mr-4">
                     <h3 id="modalAuthor" class="text-lg sm:text-xl font-serif text-white break-words">Author Name</h3>
                     <p id="modalTopic" class="text-xs text-gold uppercase tracking-widest truncate">Topic</p>
                 </div>
@@ -788,6 +783,23 @@
     <script>
         // --- Lucide Icons ---
         lucide.createIcons();
+
+        // --- STRICTLY DISABLE RIGHT CLICK AND COPY ---
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        
+        document.addEventListener('keydown', function(e) {
+            // Block Ctrl+C, Ctrl+U, Ctrl+S, Ctrl+A
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C' || e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'a' || e.key === 'A')) {
+                e.preventDefault();
+            }
+            // Block F12 (DevTools) - Optional, but often requested with this set of features
+            if(e.key === "F12") {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent Dragging
+        document.addEventListener('dragstart', event => event.preventDefault());
 
         // --- Custom Cursor Script ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -833,10 +845,9 @@
                 } else {
                     menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
                 }
-                lucide.createIcons(); // Re-create icons after innerHTML change
+                lucide.createIcons(); 
             });
 
-            // Close menu when a link is clicked
             mobileNavLinks.forEach(link => {
                 link.addEventListener('click', () => {
                     mobileMenu.classList.add('hidden');
@@ -875,12 +886,11 @@
             document.getElementById('modalAuthor').innerText = author;
             document.getElementById('modalTopic').innerText = topic;
             modalBody.innerHTML = content;
-            modalBody.scrollTop = 0; // Reset scroll position
+            modalBody.scrollTop = 0; 
             
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
             
-            // Animate in
             setTimeout(() => {
                 modalContainer.style.opacity = '1';
                 modalContainer.style.transform = 'scale(1)';
