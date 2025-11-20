@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T-Bird at Ako | Group 3</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Cormorant Garamond (Editorial Serif), Inter (Clean Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: '#D9B24F', // A richer, brighter gold
+                        dark: '#0a0a0a', // Deep black for background
+                        mid: '#141414',  // Slightly lighter for cards
+                        light: '#c7c7c7', // Main body text
+                        lighter: '#f5f5f5', // Headings
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.5s ease-out',
+                        'glow': 'glow 4s ease-in-out infinite',
+                        'glow-subtle': 'glow-subtle 4s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'glow': {
+                            '0%, 100%': { 'box-shadow': '0 0 15px -5px rgba(217, 178, 79, 0.3)' },
+                            '50%': { 'box-shadow': '0 0 25px 5px rgba(217, 178, 79, 0.5)' }
+                        },
+                        'glow-subtle': {
+                            '0%, 100%': { 'text-shadow': '0 0 8px rgba(217, 178, 79, 0.2)' },
+                            '50%': { 'text-shadow': '0 0 16px rgba(217, 178, 79, 0.4)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Cursor */
+        html {
+            cursor: none;
+            background-color: #0a0a0a;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #c7c7c7;
+            font-weight: 300;
+            /* Atmospheric background gradient */
+            background: radial-gradient(ellipse at top center, #1b1b1b 0%, #0a0a0a 70%);
+        }
+        #cursor-dot {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background-color: #f5f5f5;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9999;
+            transition: width 0.3s, height 0.3s;
+        }
+        #cursor-ring {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 1px solid #f5f5f5;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9998;
+            transition: width 0.3s, height 0.3s, opacity 0.3s;
+        }
+        .cursor-hover {
+            cursor: none;
+        }
+        /* Hide default cursor on interactive elements */
+        a, button, [onclick] {
+            cursor: none;
+        }
+        
+        h1, h2, h3, h4 {
+            font-family: 'Cormorant Garamond', serif;
+            color: #f5f5f5;
+            font-weight: 600;
+            text-wrap: balance; /* Improves headline appearance */
+        }
+
+        /* Hero Title Glow */
+        #home h1 {
+            text-shadow: 0 0 20px rgba(217, 178, 79, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #141414;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D9B24F;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e6c06a;
+        }
+
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Modal Transition */
+        #reviewModal {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+        }
+        #modalContainer {
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        #reviewModal.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #reviewModal:not(.hidden) {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="bg-dark">
+
+    <!-- CUSTOM CURSOR -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <!-- 
+      NAVBAR: Glassmorphism Effect 
+      Floats over the content with a background blur.
+      Now with full responsive mobile menu.
+    -->
+    <nav class="sticky top-0 left-0 w-full z-50 bg-black/30 backdrop-blur-xl border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                
+                <!-- Logo -->
+                <a href="#home" class="text-xl md:text-2xl font-serif text-white tracking-wider cursor-hover">
+                    GE11-SSP <span class="text-white/50">/</span> <span class="text-gold">Group 3</span>
+                </a>
+                
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about-film" class="text-xs text-light uppercase tracking-widest hover:text-white transition-colors cursor-hover">The Film</a>
+                    <a href="#reviews" class="text-xs text-light uppercase tracking-widest hover:text-white transition-colors cursor-hover">Analysis</a>
+                    <a href="#members" class="text-xs text-light uppercase tracking-widest hover:text-white transition-colors cursor-hover">The Team</a>
+                    <a href="#references" class="text-xs text-light uppercase tracking-widest hover:text-white transition-colors cursor-hover">References</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-white cursor-hover">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu (Overlay) -->
+    <div id="mobile-menu" class="hidden md:hidden fixed top-20 left-0 w-full h-[calc(100vh-5rem)] bg-black/90 backdrop-blur-xl border-t border-white/5 z-40 overflow-y-auto">
+        <div class="flex flex-col space-y-6 p-8 pt-10">
+            <a href="#about-film" class="text-lg text-light uppercase tracking-widest hover:text-white transition-colors cursor-hover mobile-nav-link">The Film</a>
+            <a href="#reviews" class="text-lg text-light uppercase tracking-widest hover:text-white transition-colors cursor-hover mobile-nav-link">Analysis</a>
+            <a href="#members" class="text-lg text-light uppercase tracking-widest hover:text-white transition-colors cursor-hover mobile-nav-link">The Team</a>
+            <a href="#references" class="text-lg text-light uppercase tracking-widest hover:text-white transition-colors cursor-hover mobile-nav-link">References</a>
+        </div>
+    </div>
+
+    <!-- 1. HOME PAGE (Hero) -->
+    <section id="home" class="relative min-h-screen flex items-center overflow-hidden">
+        <!-- Subtle Background Pattern -->
+        <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(#444 0.5px, transparent 0); background-size: 30px 30px; background-position: -15px -15px;"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+            
+            <!-- Left: Text Content -->
+            <div class="z-10 pt-16 md:pt-0">
+                <h1 class="text-6xl sm:text-7xl lg:text-9xl font-bold tracking-tight reveal">
+                    T-Bird <span class="text-gold italic font-normal">at</span> Ako
+                </h1>
+                <p class="mt-6 text-xl text-light max-w-lg leading-relaxed font-light reveal" style="transition-delay: 100ms;">
+                    A critical analysis of the 1982 cinematic milestone, exploring its intersection of law, gender, and the groundbreaking rivalry of Nora Aunor and Vilma Santos.
+                </p>
+            </div>
+
+            <!-- Right: Group Banner (with animated glow) -->
+            <div class="relative w-full aspect-[4/3] reveal" style="transition-delay: 200ms;">
+                <div class="absolute inset-0 border-2 border-white/10 z-0 translate-x-4 translate-y-4 rounded"></div>
+                <!-- Glowing Border -->
+                <div class="absolute -inset-px z-0 rounded animate-[glow_4s_ease-in-out_infinite]"></div>
+                
+                <div class="relative z-10 w-full h-full group overflow-hidden bg-mid rounded">
+                    <img src="front1.png" 
+                         alt="Group Banner" 
+                         onerror="this.src='https://placehold.co/800x600/1a1a1a/555?text=Image+Missing'"
+                         class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 ease-in-out">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <span class="absolute bottom-4 left-4 text-xs text-white uppercase tracking-widest z-20">GE11-SSP / BC5MC</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Down Indicator -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-20">
+            <div class="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
+                <div class="w-1 h-2 bg-white/50 rounded-full animate-bounce"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. ABOUT THE FILM -->
+    <section id="about-film" class="py-24 sm:py-32 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                
+                <!-- Title & Watch Button -->
+                <div class="lg:col-span-5 space-y-8 reveal">
+                    <h2 class="text-5xl sm:text-6xl font-serif animate-glow-subtle">About the Film</h2>
+                    <div class="w-24 h-px bg-gold"></div>
+                    
+                    <!-- Watch Card -->
+                    <div class="group relative aspect-video w-full rounded overflow-hidden bg-mid border border-white/10">
+                        <img src="t2.jpg" 
+                             alt="Movie Still" 
+                             onerror="this.src='https://placehold.co/1600x900/1a1a1a/555?text=Image+Missing'"
+                             class="w-full h-full object-cover opacity-70 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105">
+                        <div class="absolute inset-0 bg-black/50 transition-all duration-500 group-hover:bg-black/60"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <a href="https://www.youtube.com/watch?v=amxgmFCxfS0" target="_blank" class="flex flex-col items-center justify-center opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 cursor-hover">
+                                <div class="w-20 h-20 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center transition-all group-hover:bg-white/20">
+                                    <i data-lucide="play" class="w-10 h-10 text-white ml-1"></i>
+                                </div>
+                                <span class="mt-4 text-xs text-white uppercase tracking-widest">Watch Full Movie</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details & Synopsis -->
+                <div class="lg:col-span-7 lg:pl-12 reveal" style="transition-delay: 150ms;">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-10">
+                        <!-- Details -->
+                        <div>
+                            <dt class="text-sm font-medium text-gold uppercase tracking-widest">Details</dt>
+                            <dd class="mt-3 text-light text-sm leading-relaxed space-y-2">
+                                <p><strong class="text-white">Title:</strong> T-Bird at Ako</p>
+                                <p><strong class="text-white">Director:</strong> Danny Zialcita</p>
+                                <p><strong class="text-white">Year:</strong> 1982</p>
+                                <p><strong class="text-white">Genre:</strong> Drama, LGBTQ+, Neo-Noir</p>
+                            </dd>
+                        </div>
+                        <!-- Synopsis -->
+                        <div>
+                            <dt class="text-sm font-medium text-gold uppercase tracking-widest">Synopsis</dt>
+                            <dd class="mt-3 text-light text-sm leading-relaxed">
+                                Sylvia (Nora Aunor), a high-profile lawyer, defends Isabel ( Vilma Santos), a club dancer accused of murder. As the case deepens, Sylvia confronts her own sexuality and growing feelings for her client, blurring the lines between justice and desire.
+                            </D>
+                        </div>
+                        <!-- Background -->
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gold uppercase tracking-widest">Background</dt>
+                            <dd class="mt-3 text-light text-sm leading-relaxed">
+                                A landmark film uniting the "superstars" Nora Aunor and Vilma Santos. It was a bold commercial release for its time, tackling themes of lesbianism, class, and morality in a conservative society, all wrapped in Zialcita's signature witty dialogue.
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. MOVIE REVIEWS (Vertical Grid) -->
+    <section id="reviews" class="py-24 sm:py-32 border-t border-white/5 bg-dark overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="reveal">
+                <h2 class="text-5xl sm:text-6xl font-serif mb-4 animate-glow-subtle">Critical Analysis</h2>
+                <div class="w-24 h-px bg-gold mb-12"></div>
+                <p class="text-lg text-light font-light max-w-2xl mb-12">
+                    A compilation of 11 individual reviews from our group.
+                </p>
+            </div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal" style="transition-delay: 150ms;">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Review Card 1 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/adventoc.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Advento, Danica</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">—————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"T-Bird at Ako" (1982), directed by Danny Zialcita, is considered a milestone in Philippine cinema due to its bold portrayal...."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+<p>T-Bird at Ako" (1982), directed by Danny Zialcita, is considered a milestone in Philippine cinema due to its bold portrayal of gender and sexuality, legal drama, and the outstanding performances of Nora Aunor and Vilma Santos. The movie is acknowledged for its being one of the few mainstream Filipino films that spotlighted LGBT themes still in an era when such representations were not only rare but also heavily censored; thus, it has eventually become the classic in the domain of entertainment and its smart writing.</p>
+
+<p class="mt-4">In the center of the film's plot, we meet Sylvia Salazar (Aunor), a competent and forceful lawyer who is, nevertheless, personally unfulfilled and unsure of her career and love life. On the other hand, Sabel (Santos), a bar dancer, is caught in a murder case after she kills a man in a struggle when he tries to rape her. Sylvia has to defend Sabel in court and find herself emotionally and physically attached to her client, which leads to an intricate game of power, longing, and identity.</p>
+
+<p class="mt-4">One of the main reasons for the success of "T-Bird at Ako" could be Aunor and Santos's chemistry. Apart from being fantastic actresses, both were also the leading ladies of the movie at the time, and Zialcita’s smart casting raises the conflict: how would the audience of the 1980s react to the fact that these two stars were involved in a love affair though only fictional? Their verbal exchanges in the courtroom are particularly portrayed with high class and smart logic by the use of sharp dialogue and compelling logic, thus making legal drama both thrilling and easy to follow while at the same time providing a perfect background for subtle flirtations and charged moments.</p>
+
+<p class="mt-4">In terms of style, Zialcita's tight directing and a mixture of irreverence and drama come out through the pacing. The film's parodic nature is emphasized by the use of rapid editing, witty dialogues, and comical tones.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 2 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/bulosc.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Bulos, Arianne</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"If you’re into classic Filipino cinema especially films that weren’t afraid to push boundaries T-Bird at Ako is absolutely worth watching...."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+<p>If you’re into classic Filipino cinema especially films that weren’t afraid to push boundaries T-Bird at Ako is absolutely worth watching. It’s one of those movies that feels surprisingly modern despite being filmed decades ago, mainly because of how boldly it tackled themes like gender identity, same-sex attraction, and female empowerment at a time when those topics were still considered taboo in mainstream Filipino media.</p>
+
+<p class="mt-4">What makes the movie engaging is how it handles their relationship. The tension between Sylvia and Isabel isn’t overly dramatized or sensationalized. It’s subtle found mostly in their glances, quiet moments, and the unspoken feelings lingering in the background. And because the film stars Vilma Santos and Nora Aunor, two of the biggest icons in Philippine entertainment you can really feel the weight of their performances. They don’t need extravagant monologues; their eyes and expressions already say so much.</p>
+
+<p class="mt-4">Another interesting aspect is how the film portrayed Sylvia’s sexuality. Considering the era, T- Bird at Ako handled the subject with surprising dignity. While it’s not a perfect representation by today’s standards, it didn’t treat her lesbian identity as a joke or something to be “fixed,” which was unfortunately common in films during that time. Instead, the movie presented her character with sensitivity and seriousness.</p>
+
+<p class="mt-4">Overall, T-Bird at Ako is more than just a courtroom drama or a story about two women from different worlds. It’s a film that explored queer themes long before it became socially acceptable to do so. It’s bold, emotional, and anchored by two incredible actresses whose chemistry makes the story feel genuine and heartfelt.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 3 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/cabadingc.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Cabading, Rhon Kyel</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">————————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"..."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+                        <p>....</p>
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 4 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/chariec.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Cutillas, Charie Mae</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">———————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"T-Bird at Ako is a unique and major accomplishment among the Philippine films. Its being a landmark..."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+                       <p>"T-Bird at Ako" is a unique and major accomplishment among the Philippine films. Its being a landmark is not only based on its courageous theme dealing with gender and sexual identity, but, most importantly, on the arrival in the film of the country's two biggest stars, Nora Aunor and Vilma Santos, together for the first time and the last. This cooperation turned the movie around from a regular legal drama into a strong means for social critique and an in-depth study of emotional subtext, thus, continuing the tradition of a very high level of psychological intensity that rightfully calls for scholars' attention.</p>
+
+<p class="mt-4">Between its two main characters, the story creates a dialectical tension. The main character, Sabel (Nora Aunor), is portrayed as a rebellious, unconventional person who owns and runs a nightclub and was once a law student. The term "T-Bird," which denotes a masculine lesbian identity, is used to identify her. Despite claiming to have acted in self-defense, Sabel is linked to a murder. Sylvia (Vilma Santos), a well-respected, meticulously traditional, and prosperous lawyer whose career is deeply ingrained in established social structures, takes on her legal defense.</p>
+
+<p class="mt-4">Through thematic analysis, it is uncovered that T-Bird at Ako is a major projector of gayness in the cinema of the past. Zialcita's handling intentionally goes round the emotional intricacy of the women’s relationship, not offering any simple interpretations or mainstream solutions. The movie is not delivering narrative proclamations in an explicit way but is rather portraying the attraction feeling and the strain between self-acceptance and the fear of social punishment. Sabel is not just a legal case but she is also a marginalized person who is asserting her right to be outside the heteronormative matrix. The plot takes advantage of the stringent law to depict the societal norms gradually imposed on women’s emotional and sexual lives as less flexible.</p>
+
+<p class="mt-4">In the case of T-Bird at Ako, we can state that it is not just an incredible film, but an educational piece and an integral part of the study of queer narratives – both in the Philippines and internationally.</p>
+
+<p class="mt-4">What makes it memorable is that this was not just a film for Zialcita; it was an experience. He took a legal drama to the edge and beyond. But the real stars of the film are Aunor and Santos. They did not just act; they gave a performance that releases the best of the best, and that weaved characters with such a perfect and harmonious potion that it was just a miracle to watch.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 5 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/diolac.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Diola, Ashantie Mac Claus</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">——————————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"The shows how to break social barriers through its powerful performances which stay with viewers after the movie ends..."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+                       <p>The shows how to break social barriers through its powerful performances which stay with viewers after the movie ends. The 1982 film T-Bird and Me features Nora Aunor and Vilma Santos in leading Filipino film T-Bird at Ako—also known as T-Bird and Me in English—roles as it tackles three sensitive subjects which were forbidden during its release period: women's sexual nature and homosexual relationships and the delicate dance between trust and exposure. The film presents a dramatic story through its courageous narrative which depends on the powerful emotional connection between two actresses who display both intense and gentle moments.</p>
+
+<p class="mt-4">Sylvia serves as the main character in the story through Nora Aunor's portrayal of a reserved lawyer who hides her deep sense of loneliness. The legal case of Sabel played by Vilma Santos leads Sylvia to experience a complete transformation in her life. The nightclub dancer Sabel faces murder charges because she killed a man to protect herself. The character Sabel presents complete opposites to Sylvia because she displays her emotions openly and acts on impulse while remaining unfiltered. The encounter between Sylvia and Sabel produces an unusual bond which forces Sylvia to leave her controlled existence and face her suppressed emotions.</p>
+
+<p class="mt-4">The film achieves its power through the opposing emotional states which the two main characters display. Nora Aunor delivers a powerful performance as Sylvia through her deliberate facial expressions and pauses which reveal her hidden emotional turmoil. Vilma Santos delivers a dual performance as Sabel by showing both powerful and delicate aspects of the character. Generates an intense emotional connection between the two characters through their shared moments which remain unspoken yet deeply felt. The character Sabel demonstrates survival skills but she deeply desires to find safety and meaningful relationships. The film presents a sensitive depiction of same-sex affection between two women during a time when society did not recognize their relationship. The film contains prolonged scenes and dramatic moments that sometimes tip into melodramatic territory.</p>
+
+<p class="mt-4">The film maintains a slow tempo which might seem dragging to contemporary viewers. The deliberate speed of the film enables the emotional depth to develop organically. The film uses silent moments between characters, including looks, awkward silences, and tentative smiles, to create the same impact as their intense dramatic scenes.</p>
+
+<p class="mt-4">The film presents two distinct aspects through its exploration of character development and its position as a historical document. The story combines courtroom scenes with personal drama to create a narrative flow that shows both external conflicts and internal emotional battles. The director uses camera angles and lighting effects to show Sylvia's emotional separation through her placement in dark areas and her blocking by physical obstacles. The film uses understated visual elements to enhance its narrative.</p>
+
+<p class="mt-4">The film achieves its highest value through its boldness. The early 1980s Filipino mainstream cinema made a groundbreaking move by showing lesbian attraction without using stereotypes or mocking the characters. The-Bird and Me stands as an essential film although it contains some flaws. The film presents outstanding acting combined with significant storytelling elements and a sensitive portrayal of women discovering each other in a society that fails to understand them. The film started essential dialogues about personal identity and emotional authenticity, although it did so through subtle means.</p>
+
+<p class="mt-4">The film stays with viewers through its gentle, contemplative, and authentic portrayal.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 6 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/estradac.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Estrada, John Mark</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">———————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"I watched T-Bird at Ako, and honestly, it’s crazy how it mixes typical movie entertainment with seri‌ous talk..."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+                       <p>I watched T-Bird at Ako, and honestly, it’s crazy how it mixes typical movie entertainment with seri‌ous talk about pow​er and gen​der. The plot fo‌cuses on Sabel—Vilma Santos plays her—who is a dancer that killed a rich guy in self-defense. Then the re is Syl via, played by Nora Aunor the lawyer who decides to take her case. What really stu​ck with me was the weird tension between the two women. Even the title is bold. Since “T-Bird” is slang for a lesbian, the mov​ie was definitely touching on topi cs that most Filipi​no fi lms in the 80s stayed away from.</p>
+
+<p class="mt-4">Character-wise, the movie does a great job. Sylv​ia is su per sm​art and professional, but Sa​bel is w​ilder. She is independent and doesn’t care about fitting in. Both of them b‌reak the mold for women in movies back then, who were usually just portrayed as weak or followers. Here, the characters actually have deep feelings and real struggles.</p>
+
+<p class="mt-4">There is one specific sc‌ene after the trial that hit hard. Sylvia says, “Hindi ko inaasahan na g‌anito ang mararamdaman ko sa’yo.” That line basically s‌hows the whole conflict—it is about what she wants versus what society thinks is right. It proves how much pressure women were under in the 80s to hide any feelings that weren’t “straight.” Just bringing up that kind of att raction was brave for a mainstream movie back then.</p>
+
+<p class="mt-4">But you can still tell the mo vie is old. The ending feels a bit sa fe. It builds up all these queer vibes but then backs off at the last second. Instead of explor ing a real relationship betw​een them, it goes for an ending that woul‌dn’t upset peo‌ple. It shows that even though the mo​vie was bold, it was still held back by the culture of the time.</p>
+
+<p class="mt-4">So, the movie isn't just loo‌king at gender or being gay. It goes deeper than th at. When Sabel tries to fight back agai‌nst that guy—who has all the p ower and treats her bad—and then you see how the co‌urt treats her it really shows how unfair things are between different classes. It highlights how the system is kind of broken. You can see that regular people get ju dged way harder, while the people on top just get away with stuff because of who they are.</p>
+
+<p class="mt-4">Thinking about the w​hole thing, T-Bird at Ako is a pretty sol‌id movie for back the‌n. It’s got all this emotional stuff happening, but it also makes you think about gender roles and who really holds the p‌ower in society. Even if some parts look a bit old-fashioned or we​ird now, it still pushes you to think about how people are represented. For me? It’s way more than just a cour​troom movie. It remin ds me how much mov​ies have ch anged and why we r‌eally need to keep telling stories about all different kinds of pe ople.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 7 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/fragoc.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Frago, John Eric</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">—————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"T-Bird‍‌‍‍‌‍‌‍‍‌ at Ako (1982), a film by Danny Zialcita and featuring the two iconic actresses Vilma Santos and Nora Aunor..."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+                       <p>T-Bird‍‌‍‍‌‍‌‍‍‌ at Ako (1982), a film by Danny Zialcita and featuring the two iconic actresses Vilma Santos and Nora Aunor, is a landmark Filipino movie that deals with gender roles, sexuality, and the double standards that women face under the judgment of a conservative society most vehemently. The plot revolves around Sylvia, a lawyer who is not only tough but also highly successful and is said to be a 'T-bird,' which was a term used in a derogatory way to designate lesbians. Her life's trajectory changes when she commits herself to Isabel's defense. Isabel is a helpless nightclub dancer who, in the heat of a violent confrontation, kills her abusive partner accidentally. From the first moment of a professional relationship founding, they finally share a deep emotional connection, leading both of them to re-evaluate their identities and the social expectations that are forced upon them.</p>
+
+<p class="mt-4">The contrasting characters of the film's two main heroines are the basis of the plot. Sylvia is the one who symbolizes a strong, independent female character that goes against the traditional gender characteristics. The way she dresses is trendy, she speaks in an assertive manner, and generally, she is walking with her head held high. But she is also the one who gets judged for her so-called lesbian nature all the time. There are a number of scenes in which people do not openly talk about her but actually, whisper and in one very stressful moment inside the courtroom, the opposing counsel insinuates that her 'unconventional behavior' causes her to be the one who cannot be a lawyer. These situations depict how women professionals are put under a magnifier to a greater extent than men, especially at the times when women choose not to behave in a manner expected of their gender.</p>
+
+<p class="mt-4">On the other hand, Isabel symbolizes the farthest point from the spectrum. She is a woman who has a gentle nature, is emotional, and somewhat dependent. One of the most heartfelt scenes in the movie is when the police brought her to the station after the arrest. After breaking down, she admits that she considers herself 'worthless' because it has been a long time since her partner has not only constantly insulted but also dominated her. The point of this scene is to show the process of how domestic violence tears down the woman's pride and how society being so different from what it pretends to be, instead of giving them protection, blames them all the way. On the day Isabel moves to Sylvia's house for security, their connection evolves into something more personal, intimating the possibilities that neither of them fully grasp or have the courage to say out loud.</p>
+
+<p class="mt-4">A big part of the movie is the ambiguity of the relationship between Sylvia and Isabel, which in fact, forms the emotional core of the film. One of the most quiet yet impactful scenes is when Sylvia is looking at Isabel who is sleeping; the moment is full of love and also self-control. The movie at no point explicitly associates Sylvia with a certain sexual orientation, which is in agreement with the social conditions of the 1980s when rarely there were any openly queer characters and even then they were mostly censored. Therefore, while this delicacy might seem obsolete for those who want to see explicit representation of queer characters and are coming from the present time, it nevertheless makes an emphasis on how challenging it was for females - mainly queer ones - to reveal their true identity if they didn't want to be judged.</p>
+
+<p class="mt-4">From a critical point of view, T-Bird at Ako conveys an assortment of very significant communicative goals. One of its main tasks is to unveil the societal structure of a male-dominant world that invites women to be flawless and at the same time punishes them straight away when they step away from the beaten path. It debunks the stigma linked with the lesbian identity concept by showing Sylvia not just as a strong and successful professional but also as a real person, and not as a stereotype. Besides that, the movie insists upon the pressing need of the issue of violence against women and at the same time, it notifies others that women like Isabel who are the victims of such violence can barely find people to help them.</p>
+
+<p class="mt-4">Although it suffers from some kind of melodramatic aspects that are typical for that time, T-Bird at Ako is still a culturally important movie. The way it deals with the two women's journey through the challenges of identity, the experience of abuse, and the judgment of society, makes the film an effective gender-related commentary that is still valid ‍‌‍‍‌‍‌‍‍‌today.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 8 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/illaganc.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Illagan, Ralph Roman</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">————————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"for me, T-Bird: Naura Unor is one of those rare films that sneaks up on you. You don’t expect it to resonate this deeply..."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+                        <p>for me, T-Bird: Naura Unor is one of those rare films that sneaks up on you. You don’t expect it to resonate this deeply, but as you watch, you find yourself pausing, thinking, “Wow, this is actually solid.” It’s not trying to be overly intellectual or pretentious, but it lands. It has attitude, weight, and moments that hit because they’re grounded in reality rather than spectacle. From the very first frame, the movie establishes a rhythm that’s fast-paced yet controlled—like a high-tempo basketball game, where the chaos is deliberate, and even in the midst of speed, there’s an uncanny sense of timing, of knowing when to slow down.</p>
+                        <p class="mt-4">The protagonist, T-Bird, is an ex-street racer who walked away from the sport after a crash so catastrophic it nearly destroyed his life. There’s guilt, trauma, and a lingering sense of personal failure embedded in him. His return to the racing world isn’t for glory or adrenaline—it’s personal. He’s searching for the syndicate known as “UNOR,” the group responsible for his brother’s disappearance. From the outset, this is intimate. This isn’t about saving the world; it’s about navigating loss, confronting fear, and reclaiming agency. T-Bird is a hero precisely because he is human. He’s flawed, vulnerable, and burdened, yet he chooses action over paralysis. That choice, in itself, is profoundly relatable.</p>
+                        <p class="mt-4">What elevates the film to a visceral experience is its cinematography and sound design. Every race scene, every turn, every near-crash is captured with precision. It never feels chaotic in a cheap, CGI-laden way. Instead, it’s smooth, deliberate, and immersive. The camera often gets uncomfortably close to T-Bird’s face as he drives, letting us inhabit the tension in his eyes, the shallow rhythm of his breathing, the micro-decisions racing through his mind. Watching him, you feel the pressure, the high-stakes mental calculation, the balance of instinct and control. It’s akin to being on a basketball court in the final seconds of a game: every choice matters, every misstep has consequence, and yet the world doesn’t stop for your indecision.</p>
+                        <p class="mt-4">The narrative slows in the middle, with exposition revealing the structure and reach of UNOR. Some might see this as a lull, but it’s necessary. By giving context to the syndicate and its mechanics, the film establishes stakes and history without sacrificing momentum. It’s a rare balance—detail without tedium.</p>
+                        <p class="mt-4">T-Bird’s character arc is the true engine of the story. He isn’t perfect. There are moments when he wants to surrender, moments when he’s lost, moments when he lashes out at himself. But there’s a quiet heroism in his persistence. He confronts fear not because he’s fearless, but because he chooses to act in spite of it. That mentality—“If it fails, I deal with it and move forward”—imbues him with a raw authenticity that makes him far more compelling than a traditional, untouchable action hero.</p>
+                        <p class="mt-4">The third act is nothing short of transcendent. The climactic chase is no longer merely about speed or skill—it’s about strategy, mental endurance, and the courage to persist under crushing pressure. Here, the “Naura Unor” of the title comes alive: chaos with purpose, wildness tempered by intention, aggression controlled by mastery. It’s a metaphor for life itself—the unpredictable, often overwhelming torrent of circumstances that demand composure, clarity, and resilience.</p>
+                        <p class="mt-4">T-Bird: Naura Unor transcends the boundaries of a conventional action film. It is a meditation on responsibility, trauma, fear, and courage. It asks a subtle but profound question: if we refuse to confront what terrifies us, do we lose not only the battle, but ourselves? With razor-sharp execution, emotional authenticity, and kinetic intensity, the film asserts that heroism is not defined by perfection or invincibility, but by the relentless, imperfect pursuit of agency in a chaotic world. Solid, raw, and unapologetically human, T-Bird lingers—not as mere spectacle, but as a study of pressure, choice, and the human heart under fire</p>
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 9 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="linasc.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Linas, John Rhey</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">—————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"T-Bird and ako is a film that breaks the mold, especially in the way it portrays strong, independent..."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+                        <p>"T-Bird at ako" is a film that breaks the mold, especially in the way it portrays strong, independent female characters, and the reversal of gender roles. As a lawyer, Sylvia challenges the patriarchal idea that women are only for the home. Not only that, her intelligence and power to succeed in her career become the main characteristics of her character and not something secondary to a romantic interest. Additionally, the film does not shy away from exploring the sexual hypocrisy surrounding women.</p>
+
+<p class="mt-4">Anna is a sex worker, so it is only natural that she is treated badly, but the film challenges this stereotype by portraying her as a woman who not only has control over her situation but also has emotions like everyone else. One of the most powerful moments is when Sylvia appears before the judge and in her passionate argument she expresses the idea that Anna deserves respect and protection just like anyone else no matter where she works. She is essentially telling society that it has no right to judge and control women morally, especially those who break the rules of the game. "T-Bird at Ako" already depicts the relationship of two women as lesbians, which is well thought out, but on the other hand, it shows the depth of the women's connection and how they support each other even though society puts labels and has expectations. It is a very powerful message about a community of women fighting against a judgmental world.</p>
+
+<p class="mt-4">Through "T-Bird and Me," Zialcita points out a major flaw in the issue of morality and gender which is one of the main causes of the most hypocritical and conservative societies in the Philippines. The film exposes the double standards of how society judges genders according to morality. While male promiscuity is generally accepted and in some cases even glorified, women, especially when it occurs outside of marriage or conventional relationships, are heavily criticized. Anna's role is a perfect representation of society's judgment. She is rejected and humiliated but at the same time, the film makes her a full-fledged person and reveals the reasons behind her decisions. The characters often argue about social issues. For example, in one of the dialogues, Sylvia's characters and her male companion exchange opinions about "respectable women" and "women of the night", which is a subtle but very powerful way of pointing out how society artificially decides where to draw the line. The script also introduces an aspect of the issue of class and power, as Sylvia, who is presenting her legal practice, is on a mission to save Anna, who is at the mercy of her depressing profession. The plot exposes the confrontations faced by the unfortunate due to the system of discrimination.</p>
+
+<p class="mt-4">One of the main reasons behind the success of the film "T-Bird at Ako" is the exceptional acting of the two leading actresses - Nora Aunor and Vilma Santos, and the skill with which they play the layered characters. Aunor's character Sylvia is more than a powerful lawyer; she is a woman dealing with her own desires and the expectations of society. Right from the beginning of the film, we see how cold her professional distance from Anna is, and as the story progresses, we see how this distance turns into empathy and eventually, a more intimate relationship. This change is very subtle but you definitely see it in her face and in the way she delivers her lines. Just like being perfect as an actress, Vilma Santos as Anna is not far from the race for achieving the best performance. In shaping her role with inner gentleness and a face of vulnerability, the actress insists that, in defiance of the character's profession, the latter must be completely stereotyped. However, the film goes far beyond ignoring melodrama while delivering Anna's narrative of the past with complete surrender and resilience.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 10 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/edcelc.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Postrero, Mark Edcel</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">———————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"T-Bird at Ako" when first I saw the movie my first expectations about the movie were not that good..."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+                        <p>"T-Bird at Ako" when first I saw the movie my first expectations about the movie were not that good, but I never thought it would impress me as much as it did. Because it was filmed in the early 1980s, I assumed it would be a little out of date, being an old movie, but when I watched the film, I found it to be quite interesting. Because the two female lead show us strong determination in different ways.</p>
+
+<p class="mt-4">The story centers on Sylvia, played by Nora Aunor, who is highly regarded and apparently confident in her professional life as a lawyer. While it would appear that everything is in order, you can feel that she’s going through an emotional turmoil. She then meets Vilma Santos' character, Isabel, a nightclub singer who is charged with murder. Their interactions are purely professional at first, but as Sylvia gets more involved in Isabel's life, their relationship develops in ways neither of them could have predicted.</p>
+
+<p class="mt-4">What really intrigued me was how Sylvia slowly gains awareness of her own unhappiness. In very small, almost tacit ways, she struggles with her marriage, questions her decisions, and uncovers new feelings she never acknowledged before. Nora Aunor captures this conflict in an extremely natural way without going overboard. You can really feel how torn Sylvia is between what society expects from her and what she personally wants.</p>
+
+<p class="mt-4">Vilma Santos' portrayal of Isabel is similarly impressive. Isabel's life is hard because of all that she has endured, yet she also shows the viewer those moments of frailty. Nora Aunor captures Sylvia’s internal balance so effectively that viewers instantly feel sympathy for her. The chemistry between Isabel and Sylvia feels genuine, which adds depth to the development and emotional evolution of their relationship.</p>
+
+<p class="mt-4">When the film was released in the 1980s, it had the audacity to discuss two women's feelings without using it as a plot device or for shock effect. Both characters were portrayed in the film as actual people experiencing a range of complicated emotions. Yes, there are a few outdated scenes with dramatic dialogue and occasionally overdone characters, but those didn't detract from the film's major point. In actuality, it has a certain charm due to the combination of seriousness and an older Filipino film style. T-Bird at Ako is essentially not about a forbidden relationship or a criminal case. In this chaotic environment that dictates who and how they should be, the story revolves around two ladies attempting to discover who they are. Meeting one another enables Sylvia and Isabel, who are both imprisoned in their own worlds, to recognize the aspects of themselves they have been concealing. Overall, I believe that this picture is worth seeing since it is brave for its period, emotionally sensitive, and starring two renowned actresses. It helped me understand how films from many years ago can still have resonance with current situations.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+                <!-- Review Card 11 -->
+                <article class="review-card bg-mid border border-white/10 rounded-lg p-8 flex flex-col justify-between transition-all duration-300 hover:border-gold hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10">
+                    <div>
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="ai/andrewc.png" alt="Member" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h3 class="review-author text-lg font-serif text-white">Trocio, Andrew</h3>
+                                <p class="review-topic text-xs text-gold uppercase tracking-widest">————————</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-light font-light leading-relaxed mb-6 line-clamp-3">"The introduction itself is already effective because it immediately introduces the main cast while showcasing various scenes...."</p>
+                    </div>
+                    <div class="full-review-content hidden">
+<p>The introduction itself is already effective because it immediately introduces the main cast while showcasing various scenes and giving a sense of how the show will unfold.</p>
+
+<p class="mt-4">The story centers on a girl who is either a lesbian or a straight woman. Initially, the show revolves around the characters Sylvia (Nora Aunor) and Isabel (Vilma Santos).</p>
+
+<p class="mt-4">The scenes are unpredictable. Their first meeting takes place in a bar, and you immediately sense that Sylvia is attracted to Isabel, even though Isabel is also a woman. Then, an unexpected event occurs. Because Isabel works at the bar, someone takes advantage of her, which leads to a killing.</p>
+
+<p class="mt-4">Since Sylvia is a lawyer and is drawn to Isabel, she decides to help her without hesitation, until her feelings for Isabel fully develop.</p>
+
+<p class="mt-4">However, by the end of the day, Sylvia learns the truth: Isabel has a child with her ex-partner, Dante. Isabel had mentioned that Dante was missing, but it turns out he was actually incarcerated for an estafa case.</p>
+
+<p class="mt-4">Despite this revelation, Sylvia's view of Isabel does not change. She continues to help her, and eventually, they win the case. This results in a happy ending for Isabel and the case itself, but not for their relationship.</p>
+
+<p class="mt-4">Isabel returns to Dante, while Sylvia ends up with her suitor, Jake, who is a fellow lawyer and was even her opponent in Isabel's case.</p>
+
+<p class="mt-4">The flow of the story is excellent because you genuinely don't know what will happen next. For example, with Dante, it's revealed that he's been alive all along, having left no trace for the past seven years because he was in jail. The movie is also brilliant because the court scenes how the case run are very realistic.</p>
+
+<p class="mt-4">The legal process is structured so that you cannot rely on theories or false accusations. You must present evidence in court for it to be valid.</p>
+
+<p class="mt-4">Ultimately, all the main characters find a happy ending.</p>
+
+                    </div>
+                    <button onclick="openReview(this)" class="text-sm text-white font-medium hover:text-gold transition-colors flex items-center gap-2 group cursor-hover">
+                        Read Full Review <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover:translate-x-1"></i>
+                    </button>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ABOUT US / MEMBERS PAGE -->
+    <section id="members" class="py-24 sm:py-32 border-t border-white/5 bg-dark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-5xl sm:text-6xl font-serif mb-4 animate-glow-subtle">The Project Team</h2>
+                <div class="w-24 h-px bg-gold mx-auto mb-4"></div>
+                <p class="text-lg text-gold font-light tracking-widest uppercase">GE11-SSP Group 3</p>
+            </div>
+
+            <!-- New 4-Column Grid for better spacing -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                
+                <!-- New Member Card Design -->
+                <div class="group text-center reveal">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/advento.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Contributed to research and design.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Advento, Danica</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Researcher / Designer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 50ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/bulos.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Contributed to research and design.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Bulos, Arianne</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Researcher / Designer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 100ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/cabading.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Checked facts and verified data for accuracy.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Cabading, Rhon Kyel</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Fact Checker / Developer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 150ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/charie.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Checked facts and verified data for accuracy.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Cutillas, Charie Mae</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Fact Checker / Developer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 200ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/diola.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Wrote and edited content for the project.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Diola, Ashantie Mac Claus</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Writer / Developer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 250ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/estrada.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Led the team and Web Development.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Estrada, John Mark</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Team Lead / Developer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 300ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/frago.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Edited and enhanced project visuals.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Frago, John Eric</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Image Editor / Developer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 350ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/illagan.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Performed QA and designed visual layouts.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Illagan, Ralph Roman</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">QA / Designer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 400ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/linas.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Created designs and assisted in project development.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Linas, John Rhey</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Designer / Developer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 450ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/edcel.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Researched and analyzed set design and visual composition.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Postrero, Mark Edcel</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Researcher / Developer</p>
+</div>
+
+<div class="group text-center reveal" style="transition-delay: 500ms;">
+    <div class="relative aspect-[4/5] w-full rounded-lg overflow-hidden border border-white/10 mb-4 bg-mid transition-all duration-300 group-hover:border-white/20">
+        <img src="ai/andrew.png" alt="Member" class="w-full h-full object-cover transition-all duration-500 group-hover:scale-110">
+        <div class="absolute inset-0 bg-black/80 flex items-center justify-center p-6 opacity-0 group-hover:opacity-100 transition-all duration-500">
+            <p class="text-white text-sm italic text-center">Conducted research and design for thematic analysis.</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-serif text-white">Trocio, Andrew</h3>
+    <p class="text-xs text-gold uppercase tracking-widest">Researcher / Designer</p>
+</div>
+
+               
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. REFERENCES PAGE (NOW POPULATED) -->
+    <section id="references" class="py-24 sm:py-32 border-t border-white/5 bg-mid">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-16 reveal">
+                <h2 class="text-5xl sm:text-6xl font-serif mb-4 animate-glow-subtle">Reference</h2>
+                <div class="w-24 h-px bg-gold"></div>
+            </div>
+            
+            <div class="reveal" style="transition-delay: 150ms;">
+                <ul class="text-light font-light text-sm leading-relaxed space-y-6 max-w-3xl">
+                    <li class="pl-6 -indent-6">
+                        Zialcita, D. L. (Director). (1982). T-Bird at Ako [Film]. Film Ventures Inc./ ABS-CBN Film Productions.  https://youtu.be/amxgmFCxfS0?si=Ek4xUilpylDWxyPI
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-16 bg-dark border-t border-white/5">
+        <div class="text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-xl font-serif text-white mb-2">T-Bird at Ako | A Critical Analysis</p>
+            <p class="text-xs text-gray-600 uppercase tracking-widest">© Group 3 • For Educational Purposes Only (GE11-SSP)</p>
+        </div>
+    </footer>
+
+    <!-- MODAL FOR FULL REVIEWS -->
+    <div id="reviewModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center px-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeReview()"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-mid border border-white/10 rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" id="modalContainer" style="opacity: 0; transform: scale(0.95);">
+            
+            <div class="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-dark">
+                <div>
+                    <h3 id="modalAuthor" class="text-xl font-serif text-white">Author Name</h3>
+                    <p id="modalTopic" class="text-xs text-gold uppercase tracking-widest">Topic</p>
+                </div>
+                <button onclick="closeReview()" class="text-gray-400 hover:text-white transition-colors cursor-hover">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div id="modalBody" class="p-6 sm:p-8 overflow-y-auto text-light leading-relaxed space-y-4 font-light">
+                <!-- Content inserted via JS -->
+            </div>
+            
+            <div class="px-6 py-4 border-t border-white/10 bg-dark flex justify-end">
+                <button onclick="closeReview()" class="bg-gold text-black px-5 py-2 rounded text-sm font-semibold hover:bg-opacity-80 transition-colors cursor-hover">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Lucide Icons ---
+        lucide.createIcons();
+
+        // --- Custom Cursor Script ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const cursorDot = document.getElementById('cursor-dot');
+            const cursorRing = document.getElementById('cursor-ring');
+            
+            window.addEventListener('mousemove', (e) => {
+                cursorDot.style.left = e.clientX + 'px';
+                cursorDot.style.top = e.clientY + 'px';
+                
+                cursorRing.style.left = e.clientX + 'px';
+                cursorRing.style.top = e.clientY + 'px';
+            });
+
+            document.querySelectorAll('.cursor-hover').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursorDot.style.width = '10px';
+                    cursorDot.style.height = '10px';
+                    cursorRing.style.width = '40px';
+                    cursorRing.style.height = '40px';
+                    cursorRing.style.opacity = '0.5';
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursorDot.style.width = '6px';
+                    cursorDot.style.height = '6px';
+                    cursorRing.style.width = '30px';
+                    cursorRing.style.height = '30px';
+                    cursorRing.style.opacity = '1';
+                });
+            });
+        });
+
+        // --- Mobile Menu Script ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+            menuBtn.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.toggle('hidden');
+                if (isHidden) {
+                    menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
+                } else {
+                    menuBtn.innerHTML = '<i data-lucide="x" class="w-6 h-6"></i>';
+                }
+                lucide.createIcons(); // Re-create icons after innerHTML change
+            });
+
+            // Close menu when a link is clicked
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    menuBtn.innerHTML = '<i data-lucide="menu" class="w-6 h-6"></i>';
+                    lucide.createIcons();
+                });
+            });
+        });
+
+        // --- Scroll Reveal Script ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        // --- Modal Script ---
+        const modal = document.getElementById('reviewModal');
+        const modalContainer = document.getElementById('modalContainer');
+        const modalBody = document.getElementById('modalBody');
+
+        function openReview(btn) {
+            const card = btn.closest('.review-card');
+            const author = card.querySelector('.review-author').innerText;
+            const topic = card.querySelector('.review-topic').innerText;
+            const content = card.querySelector('.full-review-content').innerHTML;
+            
+            document.getElementById('modalAuthor').innerText = author;
+            document.getElementById('modalTopic').innerText = topic;
+            modalBody.innerHTML = content;
+            modalBody.scrollTop = 0; // Reset scroll position
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Animate in
+            setTimeout(() => {
+                modalContainer.style.opacity = '1';
+                modalContainer.style.transform = 'scale(1)';
+            }, 10); // Small delay to ensure transition applies
+        }
+
+        function closeReview() {
+            modalContainer.style.opacity = '0';
+            modalContainer.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }, 300); // Wait for transition
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape" && !modal.classList.contains('hidden')) {
+                closeReview();
+            }
+        });
+    </script>
+
+</body>
+</html>
