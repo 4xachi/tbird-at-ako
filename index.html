@@ -78,7 +78,7 @@
             border-radius: 50%;
             transform: translate(-50%, -50%);
             pointer-events: none;
-            z-index: 9999;
+            z-index: 100001; /* High Z-Index to stay above modal */
             transition: width 0.3s, height 0.3s;
         }
         
@@ -90,7 +90,7 @@
             border-radius: 50%;
             transform: translate(-50%, -50%);
             pointer-events: none;
-            z-index: 9998;
+            z-index: 100000; /* High Z-Index to stay above modal */
             transition: width 0.3s, height 0.3s, opacity 0.3s;
         }
         
@@ -167,10 +167,69 @@
             visibility: visible;
             pointer-events: auto;
         }
+
+        /* Disclaimer Modal Animation */
+        #disclaimerModal {
+            transition: opacity 1s ease-in-out, visibility 1s;
+        }
+        #disclaimerModal.hidden-disclaimer {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
     </style>
 </head>
 <!-- Added oncontextmenu="return false" to body as a primary blocker -->
 <body class="bg-dark" oncontextmenu="return false">
+
+    <!-- DISCLAIMER FULL SCREEN OVERLAY -->
+    <!-- Changed to overflow-y-auto to allow scrolling on small screens if content is tall -->
+    <div id="disclaimerModal" class="fixed inset-0 z-[99999] w-full h-full bg-dark overflow-y-auto">
+        <!-- Background fixed so it doesn't scroll with content -->
+        <div class="fixed inset-0 bg-[radial-gradient(ellipse_at_top_center,_#1b1b1b_0%,_#0a0a0a_70%)]"></div>
+        
+        <!-- Content Container: min-h-full ensures centering on desktop but scrolling on mobile -->
+        <div class="relative z-10 w-full min-h-full flex flex-col items-center justify-center text-center px-6 py-12">
+            
+            <!-- Logo/Identity matching Navbar style -->
+            <div class="mb-8 sm:mb-10 opacity-80">
+                 <h1 class="text-xl sm:text-2xl md:text-3xl font-serif text-white tracking-wider">
+                    GE11-SSP <span class="text-white/50">/</span> <span class="text-gold">Group 3</span>
+                </h1>
+            </div>
+
+            <!-- Subtle Vertical Line Divider -->
+            <div class="w-px h-8 sm:h-12 bg-gradient-to-b from-transparent via-gold/40 to-transparent mb-8 sm:mb-10"></div>
+
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif text-white mb-6 sm:mb-8 tracking-wide">Disclaimer</h2>
+            
+            <div class="space-y-5 sm:space-y-6 text-light font-light text-xs sm:text-sm md:text-base leading-relaxed max-w-md sm:max-w-lg mx-auto mb-10 sm:mb-12">
+                <p>
+                    This digital portfolio serves as a partial fulfillment of requirements for our subject <strong class="text-white">GE11-SSP</strong>. It is a non-profit, student-led initiative designed strictly for academic evaluation and educational discourse. No part of this website is intended for commercial use or monetary gain.
+                </p>
+                <p>
+                    This project utilizes audiovisual materials and plot elements from the 1982 motion picture <em class="text-white">T-Bird at Ako</em>. These materials are incorporated under the <strong class="text-white">Fair Use</strong> doctrine for the specific purposes of film criticism, social commentary, and academic research. All original copyrights remain the exclusive property of <strong class="text-white">ABS-CBN Film Productions</strong> and their respective entities.
+                </p>
+                <p>
+                    The analyses and interpretations expressed herein are solely those of the student authors (Group 3) and do not necessarily reflect the official stand of the educational institution.
+                </p>
+            </div>
+
+            <!-- Enter Button matching site aesthetic -->
+            <div class="flex flex-col items-center gap-5 sm:gap-6 pb-6">
+                <button onclick="acceptDisclaimer()" class="group relative px-8 sm:px-10 py-2.5 sm:py-3 bg-transparent border border-white/10 rounded overflow-hidden transition-all duration-500 hover:border-gold/50 cursor-hover">
+                    <!-- Hover Effect Background -->
+                    <div class="absolute inset-0 bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out"></div>
+                    
+                    <span class="relative z-10 font-serif text-base sm:text-lg text-white tracking-[0.2em] group-hover:text-gold transition-colors duration-300">
+                        CONTINUE
+                    </span>
+                </button>
+                
+                <p class="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-[0.2em]">By entering, you agree to our terms of use</p>
+            </div>
+        </div>
+    </div>
 
     <!-- CUSTOM CURSOR DIVS -->
     <div id="cursor-dot"></div>
@@ -764,7 +823,7 @@
     <footer class="py-16 bg-dark border-t border-white/5">
         <div class="text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-xl font-serif text-white mb-2">T-Bird at Ako | A Critical Analysis</p>
-            <p class="text-xs text-gray-600 uppercase tracking-widest">© Group 3, BC5MC • FOR EDUCATIONAL PURPOSES ONLY (GE11-SSP)</p>
+            <p class="text-xs text-gray-600 uppercase tracking-widest">© Group 3 • GE11-SSP</p>
         </div>
     </footer>
 
@@ -802,6 +861,24 @@
     <script>
         // --- Lucide Icons ---
         lucide.createIcons();
+
+        // --- DISCLAIMER MODAL SCRIPT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lock scroll initially so user MUST interact with disclaimer
+            document.body.style.overflow = 'hidden';
+        });
+
+        function acceptDisclaimer() {
+            const modal = document.getElementById('disclaimerModal');
+            // Fade out effect
+            modal.style.opacity = '0';
+            
+            setTimeout(() => {
+                modal.classList.add('hidden-disclaimer');
+                // Re-enable scrolling
+                document.body.style.overflow = 'auto';
+            }, 500); // Matches CSS transition time
+        }
 
         // --- STRICTLY DISABLE RIGHT CLICK AND COPY ---
         document.addEventListener('contextmenu', event => event.preventDefault());
@@ -935,6 +1012,3 @@
 
 </body>
 </html>
-
-
-
